@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+      integrity="sha256-9mbkOfVho3ZPXfM7W8sV2SndrGDuh7wuyLjtsWeTI1Q="
+      crossorigin="anonymous"
+    />
+    <title>Quiz</title>
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="ui container">
+      <br />
+      <h1>Frequenzgenerator Agilent 33210A</h1>
+      <div class="ui message">
+        <div class="header">
+          Aufgabe:
+        </div>
+        <ul id="task" class="list">
+          <li>Sie möchten eine sinusförmige Spannung erzeugen.</li>
+          <li>
+            Klicken Sie im Bild auf den Knopf den Sie zum einstellen der
+            gewünschten Signalform verwenden.
+          </li>
+        </ul>
+      </div>
+
+      <div class="buttons">
+        <div class="agilent">
+          <img id="agl" src="4.gif" alt="Agilent" />
+        </div>
+      </div>
+      <br />
+      <div >
+        <div id="answer" class="ui message">
+          <i class="close icon"></i>
+          <div id="answer_head" class="header"></div>
+          <p id="answer_body"></p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+    var locked = false;
+  let sine = [152, 210];
+  let output = [407, 246];
+  let freq = [149, 172];
+
+  var step = 0;
+
+  $("#agl").on("click", function(e) {
+    var parentOffset = $(this)
+      .parent()
+      .offset();
+    var relX = e.pageX - parentOffset.left;
+    var relY = e.pageY - parentOffset.top;
+    console.log("clicked on " + relX + " - " + relY);
+    console.log(step);
+    if (locked) {
+        return;
+    }
+    if (distance(relX, relY, sine[0], sine[1]) < 15) {
+      if (step == 0) {
+        step++;
+        console.log("step 0 complete");
+        success("Richtig, mit 'Sine' wird die sinusförmige Spannung ausgewählt."+'<a href="javascript:next();">-> Weiter</a>');
+        return;
+      }
+      console.log("clicked on sine");
+    }
+
+    if (distance(relX, relY, output[0], output[1]) < 15) {
+      if (step == 2) {
+        success("Genau! Es macht Sinn zu kontrollieren ob der Output aktiv ist!"+'<a href="javascript:next();"> Das waren erstmal alle Fragen</a>');
+        step = 0;
+        return;
+      }
+      console.log("clicked on outpu");
+    }
+
+    if (distance(relX, relY, freq[0], freq[1]) < 15) {
+      if (step == 1) {
+        step++;
+        success("Richtig");
+        return;
+      }
+      console.log("clicked on freq");
+    }
+    $('#answer_head').html("Leider falsch!");
+    $('#answer_body').html("Probiere es nochmal");
+    $('#answer').addClass("error");
+  });
+
+  function success(msg) {
+    $('#answer_head').html("Das ist richtig!"+'<a href="javascript:next();">-> Weiter</a>');
+    $('#answer_body').html(msg);
+    locked = true;
+    //$('#answer').removeClass("error");
+    //$('#answer').removeClass("success");
+    //$('#answer').addClass("success");
+  }
+
+    function next() {
+        empty();
+        if (step == 1) {
+            updateTask('<li>Sie möchten nun die Frequenz der Sinusspannung einstellen. Welche Knopf müssen sie drücken?</li>');
+        }
+        if (step == 2) {
+            updateTask('<li>Sie haben alle Einstellungen gemacht aber es tut sich nichts in Ihrer Schaltung. Welchen Knopf nutzen Sie um zu kontrollieren ob der Output eingeschaltet ist?</li>');
+        }
+        locked = false;
+    }
+
+  function empty() {
+    $('#answer_head').html("");
+    $('#answer_body').html("");
+    $('#answer').removeClass("error");
+    $('#answer').removeClass("success");
+  }
+
+  function updateTask(task) {
+      $('#task').html(task);
+  }
+
+  function distance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+  }
+</script>
